@@ -180,13 +180,21 @@ class TuringMachine:
 
 
 if __name__ == "__main__":
-    tm = TuringMachine(num_states=2)
-    tm.add_transitions(
-        [(0, 0, "a", "b", "R"), (0, 0, "b", "a", "R"), (0, 1, "_", "_", "L")]
-    )
-    tm.mark_final_state(1)
-
-    inp = "abaab"
+    
+    #tm = TuringMachine(num_states=2)
+    #tm.add_transitions(
+    #    [(0, 0, "a", "b", "R"), (0, 0, "b", "a", "R"), (0, 1, "_", "_", "L")]
+    #)
+    # tm.mark_final_state(1)
+    
+    tm = TuringMachine(num_states=5, input_alphabet=set("ab#"), tape_alphabet=set("01"))
+    tm.add_transitions([
+        (0, 1, "a", "0", "R"),
+        (0, 3, "b", "1", "R"),
+        (0, 1, "a", "0", "R"),
+    ])
+    
+    inp = "abaab#"
     tape, accept, configs = tm.compute(inp)
     print(inp, "-->", tape, accept)
     print("--------------------------------")
