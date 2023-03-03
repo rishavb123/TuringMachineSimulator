@@ -159,7 +159,7 @@ class TuringMachine:
         return trans.get_dest()
 
     def create_snapshot(self, tape: Tape, q: State):
-        return tape.snapshot().replace(">", f"[{q.name}]")
+        return tape.snapshot().replace(">", f"[{q.name}>]")
 
     def normalize_snapshots(self, snapshots):
         max_len = max([len(s) for s in snapshots]) + 2
@@ -173,7 +173,10 @@ class TuringMachine:
         snapshots = []
         snapshots.append(self.create_snapshot(tape, q))
         while not q.final():
-            q = self.apply_transition(tape, self.delta[(q, tape.read())])
+            k = (q, tape.read())
+            if k not in self.delta:
+                break
+            q = self.apply_transition(tape, self.delta[k])
             snapshots.append(self.create_snapshot(tape, q))
         snapshots = self.normalize_snapshots(snapshots)
         return tape.get_tape_str().rstrip("_"), q.accepting, snapshots
@@ -190,9 +193,26 @@ if __name__ == "__main__":
     tm = TuringMachine(num_states=5, input_alphabet=set("ab#"), tape_alphabet=set("01"))
     tm.add_transitions([
         (0, 1, "a", "0", "R"),
+        (1, 1, "a", "a", "R"),
+        (1, 1, "a", "a", "R"),
+        (1, 1, "b", "b", "R"),
+        (1, 1, "#", "#", "R"),
+        (1, 2, "_", "a", "L"),
+        (2, 2, "a", "a", "L"),
+        (2, 2, "b", "b", "L"),
+        (2, 2, "#", "#", "L"),
+        (2, 0, "0", "a", "R"),
+        (2, 0, "1", "b", "R"),
+        
         (0, 3, "b", "1", "R"),
-        (0, 1, "a", "0", "R"),
+        (3, 3, "a", "a", "R"),
+        (3, 3, "b", "b", "R"),
+        (3, 3, "#", "#", "R"),
+        (3, 2, "_", "b", "L"),
+
+        (0, 4, "#", "#", "R"),
     ])
+    tm.mark_final_state(4)
     
     inp = "abaab#"
     tape, accept, configs = tm.compute(inp)
