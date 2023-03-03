@@ -1,6 +1,6 @@
 import sys
 
-from .turning_machine import TuringMachine
+from turning_machine import TuringMachine
 
 show_config = len(sys.argv) > 1
 
